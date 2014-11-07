@@ -54,6 +54,9 @@
     <ClCompile Include="Timer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="ShadowMap.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Camera.h">
@@ -89,6 +92,9 @@
     <ClInclude Include="Vertex.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="ShadowMap.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="DefaultPixel.hlsl">
@@ -99,6 +105,12 @@
     </FxCompile>
     <FxCompile Include="DefaultVertex.hlsl">
       <Filter>Shaders\Vertex</Filter>
+    </FxCompile>
+    <FxCompile Include="FullScreenQuadVert.hlsl">
+      <Filter>Shaders\Vertex</Filter>
+    </FxCompile>
+    <FxCompile Include="FullScreenQuadPixel.hlsl">
+      <Filter>Shaders\Pixel</Filter>
     </FxCompile>
   </ItemGroup>
   <ItemGroup>

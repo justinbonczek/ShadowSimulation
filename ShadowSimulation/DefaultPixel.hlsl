@@ -35,7 +35,7 @@ struct VertexToPixel
 	float2 uv			: TEXCOORD0;
 	float3 normal		: NORMAL;
 	float3 tangent		: TANGENT;
-	float3 shadowpos	: POSITION1;
+	float4 shadowpos	: TEXCOORD1;
 };
 
 Texture2D _Texture : register(t0);
@@ -80,9 +80,24 @@ float4 main(VertexToPixel input) : SV_TARGET
 	diffuse += D;
 	spec	+= S;
 
+
+	return float4(input.shadowpos.xy, 0, 1);
+	//input.shadowpos.xyz /= input.shadowpos.w;
+
+	float shadowDepth = _ShadowMap.Sample(_Sampler, input.shadowpos.xy).r;
+	float lightDepth = input.shadowpos.z;
+
+	return shadowDepth;
+
+
 	float4 texColor = _Texture.Sample(_Sampler, float2(input.uv.x * tileX, input.uv.y * tileZ));
 
 	float4 litColor = texColor * (ambient + diffuse) + spec;
+
+	if (lightDepth > shadowDepth)
+	{
+		litColor = litColor / 2.0;
+	}
 
 	float fogLerp = saturate((distToEye - fogStart) / fogRange);
 

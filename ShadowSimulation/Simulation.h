@@ -13,6 +13,7 @@
 #include "GameObject.h"
 #include "MeshGenerator.h"
 #include "Lights.h"
+#include "ShadowMap.h"
 
 struct PerFrameData
 {
@@ -27,6 +28,8 @@ struct PerFrameData
 	float fogStart;
 	float fogRange;
 	float pad[2];
+	XMFLOAT4X4 sView;
+	XMFLOAT4X4 sProj;
 };
 
 struct PerObjectData
@@ -74,9 +77,12 @@ private:
 	ID3D11Buffer* perFrameBuffer;
 	ID3D11Buffer* perObjectBuffer;
 
+	ShadowMap* shadowMap;
 	DirectionalLight dLight;
 	PointLight pLight;
 	SpotLight sLight;
+
+	GameObject* fullScreenQuad;
 
 	ID3D11InputLayout* inputLayout;
 	

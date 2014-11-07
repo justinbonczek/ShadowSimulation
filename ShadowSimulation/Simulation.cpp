@@ -69,39 +69,66 @@ void Simulation::LoadAssets()
 	wsd.MipLODBias = 0;
 	dev->CreateSamplerState(&wsd, &wrapSampler);
 
+	///
+	// Lights
+	///
 	dLight.ambient =	XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f);
 	dLight.diffuse =	XMFLOAT4(0.7f, 0.7f, 0.7f, 1.0f);
 	dLight.specular =	XMFLOAT4(0.7f, 0.7f, 0.7f, 1.0f);
-	dLight.direction =	XMFLOAT3(0.0f, -0.0f, 0.0f);
+	dLight.direction =	XMFLOAT3(0.0f, 0.0f, 0.0f);
 	
 	pLight.ambient =	XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f);
 	pLight.diffuse =	XMFLOAT4(0.7f, 0.7f, 0.7f, 1.0f);
 	pLight.specular =	XMFLOAT4(0.6f, 0.6f, 0.6f, 1.0f);
 	pLight.attenuation = XMFLOAT3(0.0f, 0.1f, 0.0f);
-	pLight.position =	 XMFLOAT3(0.0f, 4.0f, 10.0f);
-	pLight.range =		100.0f;
+	pLight.position =	 XMFLOAT3(0.0f, -44.0f, 10.0f);
+	pLight.range =		40.0f;
 
 	sLight.ambient =	XMFLOAT4(0.1f, 0.1f, 0.1f, 1.0f);
 	sLight.diffuse =	XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
 	sLight.specular =	XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
 	sLight.attenuation = XMFLOAT3(1.0f, 0.0f, 0.0f);
-	sLight.position =	XMFLOAT3(0.0f, -30.0f, 10.0f);
-	sLight.direction =	XMFLOAT3(0.0f, -1.0f, 0.0f);
-	sLight.spot = 70.0f;
+	sLight.position =	XMFLOAT3(10.0f, 10.0f, 10.0f);
+	sLight.direction =	XMFLOAT3(0.0f, 0.0f, 0.0f);
+	sLight.spot = 90.0f;
 	sLight.range = 1000.0f;
 
 	perFrameData.dLight = dLight;
 	perFrameData.pLight = pLight;
 	perFrameData.sLight = sLight;
 
+	///
+	// Fog data
+	///
 	perFrameData.fogStart = 50.0f;
 	perFrameData.fogRange = 100.0f;
 	perFrameData.fogColor = XMFLOAT4(0.7f, 0.7f, 0.7f, 0.2f);
 
+	///
+	// GameObject Initialization
+	// No separate class needed to manage them for a small simulation
+	// Sets up meshes, materials, light materials, shaders and handles position/rotation/scaling
+	///
 	MeshData plane;
 	MeshGenerator::CreatePlane(25.0, 25.0, 2, 2, plane);
 	Mesh* planeMesh = new Mesh(plane, dev);
-	
+
+	MeshData screenQuad;
+	screenQuad.vertices.push_back(Vertex(XMFLOAT3(-1.0, -1.0, 0), XMFLOAT2(0.0, 0.0)));
+	screenQuad.vertices.push_back(Vertex(XMFLOAT3(1.0, -1.0, 0), XMFLOAT2(1.0, 0.0)));
+	screenQuad.vertices.push_back(Vertex(XMFLOAT3(-1.0, 1.0, 0), XMFLOAT2(0.0, 1.0)));
+	screenQuad.vertices.push_back(Vertex(XMFLOAT3(1.0, 1.0, 0), XMFLOAT2(1.0, 1.0)));
+	screenQuad.indices.push_back(0);
+	screenQuad.indices.push_back(1);
+	screenQuad.indices.push_back(2);
+	screenQuad.indices.push_back(1);
+	screenQuad.indices.push_back(3);
+	screenQuad.indices.push_back(2);
+	Mesh* screenQuadMesh = new Mesh(screenQuad, dev);
+
+	Material* testMat = new Material(L"FullScreenQuadVert.cso", L"FullScreenQuadPixel.cso", wrapSampler, dev);
+	fullScreenQuad = new GameObject(screenQuadMesh, testMat);
+
 	Material* brickMat = new Material(L"Textures/floor_tiles.png", wrapSampler, dev);
 	brickMat->LoadShader(L"DefaultVertex.cso", Vert, dev);
 	brickMat->LoadShader(L"DefaultPixel.cso", Pixel, dev);
@@ -150,10 +177,15 @@ void Simulation::LoadAssets()
 		chair->SetRotation(XMFLOAT3(0.0, -PI/ 2.0f, 0.0f));
 		objects.push_back(chair);
 	}
+
+	objects.push_back(fullScreenQuad);
 }	
 
 void Simulation::InitializePipeline()
 {
+	///
+	// Input Layout
+	///
 	D3D11_INPUT_ELEMENT_DESC vDesc[] = 
 	{
 		{ "POSITION", NULL, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, NULL },
@@ -170,6 +202,10 @@ void Simulation::InitializePipeline()
 
 	ReleaseMacro(vertexByte);
 
+	///
+	// Pipeline buffers/ states
+	// cBuffers, blend state, rasterizer state, stencil states, etc
+	///
 	D3D11_BUFFER_DESC cd;
 	ZeroMemory(&cd, sizeof(D3D11_BUFFER_DESC));
 	cd.ByteWidth = sizeof(perFrameData);
@@ -256,6 +292,18 @@ void Simulation::InitializePipeline()
 	ndsd.BackFace.StencilPassOp = D3D11_STENCIL_OP_INCR;
 	ndsd.BackFace.StencilFailOp = D3D11_STENCIL_OP_KEEP;
 	dev->CreateDepthStencilState(&ndsd, &noDoubleBlendDSS);
+
+	// Configure input assembly
+	devCon->IASetInputLayout(inputLayout);
+	devCon->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
+	// Set up constant buffers
+	devCon->VSSetConstantBuffers(0, 1, &perFrameBuffer);
+	devCon->VSSetConstantBuffers(1, 1, &perObjectBuffer);
+	devCon->PSSetConstantBuffers(0, 1, &perFrameBuffer);
+	devCon->PSSetConstantBuffers(1, 1, &perObjectBuffer);
+
+	shadowMap = new ShadowMap(dev, 1024, 1024);
 }
 
 void Simulation::OnResize()
@@ -268,8 +316,12 @@ void Simulation::OnResize()
 
 void Simulation::Update(float dt)
 {
+	///
+	// Rudimentary implementation to handle rasterizer state change (space to switch to wireframe/ back)
+	///
 	time += dt;
 	totalTime += dt;
+
 	perFrameData.time = totalTime;
 	if (GetAsyncKeyState(VK_SPACE) && 0x8000 && time > 0.25)
 	{
@@ -289,6 +341,15 @@ void Simulation::Update(float dt)
 	MoveCamera(dt);
 	perFrameData.eyePos = m_Camera.GetPosition();
 
+	///
+	// Spotlight animation
+	///
+	sLight.position = XMFLOAT3(40.0f * cos(totalTime * 1.0), sLight.position.y, 40.0f * sin(totalTime * 1.0) + 10.0f);
+	XMFLOAT3 direction(-(sLight.position.x), -sLight.position.y, 10 - (sLight.position.z));
+	XMStoreFloat3(&sLight.direction, XMVector3Normalize(XMLoadFloat3(&direction)));
+
+	perFrameData.sLight = sLight;
+
 	for (GameObject* obj : objects)
 	{
 		obj->Update(dt);
@@ -297,33 +358,51 @@ void Simulation::Update(float dt)
 
 void Simulation::Draw()
 {
+	// Update camera/ send view matrix to pipeline
 	m_Camera.UpdateViewMatrix();
-
 	XMStoreFloat4x4(&(perFrameData.view), XMMatrixTranspose(m_Camera.View()));
 
+	// Set up the render target (back buffer) and clear it
 	const float clearColor[4] = { 0.0f, 0.0, 0.0f, 1.0f };
 
 	devCon->ClearRenderTargetView(renderTargetView, clearColor);
 	devCon->ClearDepthStencilView(depthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 
+	// Set various states
 	float blendFactors[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
 	devCon->OMSetBlendState(blendState, blendFactors, 0xFFFFFF);
-
-	devCon->IASetInputLayout(inputLayout);
-	devCon->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-
-	devCon->VSSetConstantBuffers(0, 1, &perFrameBuffer);
-	devCon->VSSetConstantBuffers(1, 1, &perObjectBuffer);
-	devCon->PSSetConstantBuffers(0, 1, &perFrameBuffer);
-	devCon->PSSetConstantBuffers(1, 1, &perObjectBuffer);
-
+	devCon->RSSetState(current);
+	devCon->OMSetDepthStencilState(depthStencilState, 0);
+	
+	// Render the scene from the light's point of view to create a shadow map
+	shadowMap->BindDSVAndSetNullRenderTarget(devCon);
+	XMMATRIX sView = XMMatrixLookAtLH(XMLoadFloat3(&sLight.position), XMVectorSet(0.0f, 0.0f, 10.0f, 0.0f), XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f));
+	XMMATRIX sProj = XMMatrixOrthographicLH(10.0, 10.0, 0.1, 200.0);
+	XMStoreFloat4x4(&perFrameData.view, XMMatrixTranspose(sView));
+	XMStoreFloat4x4(&perFrameData.projection, XMMatrixTranspose(sProj));
+	XMStoreFloat4x4(&perFrameData.sView, XMMatrixTranspose(sView));
+	XMStoreFloat4x4(&perFrameData.sProj, XMMatrixTranspose(sProj));
 	devCon->UpdateSubresource(perFrameBuffer, 0, NULL, &perFrameData, 0, 0);
-
 	for (GameObject* obj : objects)
 	{
-		devCon->RSSetState(current);
-		devCon->OMSetDepthStencilState(depthStencilState, 0);
-		
+		XMStoreFloat4x4(&(perObjectData.world), XMLoadFloat4x4(&(obj->GetWorldMatrix())));
+		XMStoreFloat4x4(&(perObjectData.worldInverseTranspose), XMMatrixInverse(nullptr, XMMatrixTranspose(XMLoadFloat4x4(&(obj->GetWorldMatrix())))));
+		perObjectData.lightMat = obj->GetLightMaterial();
+		perObjectData.tileX = obj->GetTextureTileX();
+		perObjectData.tileZ = obj->GetTextureTileZ();
+		devCon->UpdateSubresource(perObjectBuffer, 0, NULL, &perObjectData, 0, 0);
+		devCon->PSSetShader(0, 0, 0);
+		obj->Draw(devCon);
+	}
+
+	XMStoreFloat4x4(&(perFrameData.view), XMMatrixTranspose(m_Camera.View()));
+	OnResize();
+	shadowMap->SetSRVToShaders(devCon);
+
+	devCon->UpdateSubresource(perFrameBuffer, 0, NULL, &perFrameData, 0, 0);
+	// Render the geometry from the camera to the back buffer
+	for (GameObject* obj : objects)
+	{		
 		XMStoreFloat4x4(&(perObjectData.world), XMLoadFloat4x4(&(obj->GetWorldMatrix())));
 		XMStoreFloat4x4(&(perObjectData.worldInverseTranspose), XMMatrixInverse(nullptr, XMMatrixTranspose(XMLoadFloat4x4(&(obj->GetWorldMatrix())))));
 		perObjectData.lightMat = obj->GetLightMaterial();

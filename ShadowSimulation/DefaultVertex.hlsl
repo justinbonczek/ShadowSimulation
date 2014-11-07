@@ -44,7 +44,7 @@ struct VertexOutput
 	float2 uv		: TEXCOORD0;
 	float3 normal   : NORMAL;
 	float3 tangent  : TANGENT;
-	float3 shadowpos: POSITION1;
+	float4 shadowpos: TEXCOORD1;
 };
 
 VertexOutput main(VertexInput input)
@@ -56,15 +56,28 @@ VertexOutput main(VertexInput input)
 	o.position = mul(float4(input.position, 1.0), worldViewProj);
 	o.worldpos = mul(float4(input.position, 1.0), world).xyz;
 
-	o.normal = mul(input.normal, (float3x3)worldInverseTranspose );
+	o.normal = mul(input.normal, (float3x3)worldInverseTranspose);
 	o.tangent = mul(input.tangent, (float3x3)world);
 
 	o.color = input.color;
 	o.uv = input.uv;
 
-	matrix lightViewProj = mul(mul(world, sView), sProj);
+	matrix T = {
+		0.5f, 0.0f, 0.0f, 0.0f,
+		0.0f, -0.5f, 0.0f, 0.0f,
+		0.0f, 0.0f, 1.0f, 0.0f,
+		0.5f, 0.5f, 0.0f, 1.0f };
 
-	o.shadowpos = mul(float4(input.position, 1.0), lightViewProj);
+	matrix wvp = mul(mul(world, sView), sProj);
+	//matrix shadow = mul(wvp, T);
+
+	//matrix shadowTransform = mul(mul(sView, sProj), T);
+	//matrix lightViewProj = mul(world, shadowTransform);
+
+	o.shadowpos = mul(float4(input.position, 1.0), wvp);
+	//o.shadowpos = mul(o.shadowpos, T);
+	o.shadowpos.xy = o.shadowpos.xy * 0.5f + 0.5f;
+	o.shadowpos.y = 1.0f - o.shadowpos.y;
 
 	return o;
 }

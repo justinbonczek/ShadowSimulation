@@ -13,6 +13,8 @@ using namespace DirectX;
 
 struct Vertex
 {
+	Vertex(){}
+	Vertex(XMFLOAT3 position, XMFLOAT2 uv){ Position = position; UV = uv; }
 	XMFLOAT3 Position;
 	XMFLOAT4 Color;
 	XMFLOAT2 UV;

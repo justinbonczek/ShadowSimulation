@@ -116,4 +116,4 @@ void Material::SetTileZ(float val){ tileXZ[1] = val; }
 
 float Material::GetTileX(){ return tileXZ[0]; }
 float Material::GetTileZ(){ return tileXZ[1]; }
-LightMaterial const Material::GetLightMaterial(){ return *lightMat; }
+LightMaterial const Material::GetLightMaterial(){ if (lightMat) return *lightMat; }
