@@ -8,6 +8,22 @@
 #include "Vertex.h"
 #include "Timer.h"
 
+void Simulation::MoveLight(float dt)
+{
+	if (GetAsyncKeyState('I') & 0x8000)
+		sLight.position.z += 10.0f * dt; 
+	if (GetAsyncKeyState('K') & 0x8000)
+		sLight.position.z -= 10.0f * dt;
+	if (GetAsyncKeyState('J') & 0x8000)
+		sLight.position.x -= 10.0f * dt;
+	if (GetAsyncKeyState('L') & 0x8000)
+		sLight.position.x += 10.0f * dt;
+	if (GetAsyncKeyState('U') & 0x8000)
+		sLight.position.y += 10.0f * dt;
+	if (GetAsyncKeyState('O') & 0x8000)
+		sLight.position.y -= 10.0f * dt;
+}
+
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR cmdLine, int showCmd)
 {
 	Simulation simulation(hInstance);
@@ -113,11 +129,15 @@ void Simulation::LoadAssets()
 	MeshGenerator::CreatePlane(25.0, 25.0, 2, 2, plane);
 	Mesh* planeMesh = new Mesh(plane, dev);
 
+	MeshData sphere;
+	MeshGenerator::CreateSphere(1.0, 2, sphere);
+	Mesh* sphereMesh = new Mesh(sphere, dev);
+
 	MeshData screenQuad;
-	screenQuad.vertices.push_back(Vertex(XMFLOAT3(-1.0, -1.0, 0), XMFLOAT2(0.0, 0.0)));
-	screenQuad.vertices.push_back(Vertex(XMFLOAT3(1.0, -1.0, 0), XMFLOAT2(1.0, 0.0)));
-	screenQuad.vertices.push_back(Vertex(XMFLOAT3(-1.0, 1.0, 0), XMFLOAT2(0.0, 1.0)));
-	screenQuad.vertices.push_back(Vertex(XMFLOAT3(1.0, 1.0, 0), XMFLOAT2(1.0, 1.0)));
+	screenQuad.vertices.push_back(Vertex(XMFLOAT3(0.5, -0.5, 0.1), XMFLOAT2(0.0, 0.0)));
+	screenQuad.vertices.push_back(Vertex(XMFLOAT3(1.0, -0.5, 0.1), XMFLOAT2(1.0, 0.0)));
+	screenQuad.vertices.push_back(Vertex(XMFLOAT3(0.5, -1.0, 0.1), XMFLOAT2(0.0, 1.0)));
+	screenQuad.vertices.push_back(Vertex(XMFLOAT3(1.0, -1.0, 0.1), XMFLOAT2(1.0, 1.0)));
 	screenQuad.indices.push_back(0);
 	screenQuad.indices.push_back(1);
 	screenQuad.indices.push_back(2);
@@ -125,9 +145,6 @@ void Simulation::LoadAssets()
 	screenQuad.indices.push_back(3);
 	screenQuad.indices.push_back(2);
 	Mesh* screenQuadMesh = new Mesh(screenQuad, dev);
-
-	Material* testMat = new Material(L"FullScreenQuadVert.cso", L"FullScreenQuadPixel.cso", wrapSampler, dev);
-	fullScreenQuad = new GameObject(screenQuadMesh, testMat);
 
 	Material* brickMat = new Material(L"Textures/floor_tiles.png", wrapSampler, dev);
 	brickMat->LoadShader(L"DefaultVertex.cso", Vert, dev);
@@ -142,6 +159,9 @@ void Simulation::LoadAssets()
 	defaultMat->LoadNormal(L"Textures/brick_normal.png", dev);
 	defaultMat->SetTileX(1.0f);
 	defaultMat->SetTileZ(1.0f);
+
+	Material* noLightMat = new Material(L"NoLightVert.cso", L"NoLightPixel.cso", wrapSampler, dev);
+	Material* noLightTexMat = new Material(L"FullScreenQuadVert.cso", L"FullScreenQuadPixel.cso", wrapSampler, dev);
 
 	LightMaterial* tileLightMat = new LightMaterial();
 	tileLightMat->ambient = XMFLOAT4(0.2f, 0.2f, 0.2f, 1.0f);
@@ -177,6 +197,9 @@ void Simulation::LoadAssets()
 		chair->SetRotation(XMFLOAT3(0.0, -PI/ 2.0f, 0.0f));
 		objects.push_back(chair);
 	}
+
+	cameraDebugSphere = new GameObject(sphereMesh, noLightMat);
+	quarterQuad = new GameObject(screenQuadMesh, noLightTexMat);
 }	
 
 void Simulation::InitializePipeline()
@@ -343,7 +366,9 @@ void Simulation::Update(float dt)
 	}
 	MoveCamera(dt);
 	perFrameData.eyePos = m_Camera.GetPosition();
-
+	MoveLight(dt);
+	cameraDebugSphere->SetPosition(sLight.position);
+	cameraDebugSphere->Update(dt);
 	///
 	// Spotlight animation
 	///
@@ -357,6 +382,8 @@ void Simulation::Update(float dt)
 	{
 		obj->Update(dt);
 	}
+
+	quarterQuad->Update(dt);
 }
 
 void Simulation::Draw()
@@ -379,7 +406,8 @@ void Simulation::Draw()
 	// Render the scene from the light's point of view to create a shadow map
 	shadowMap->BindDSVAndSetNullRenderTarget(devCon);
 	XMMATRIX sView = XMMatrixLookAtLH(XMLoadFloat3(&sLight.position), XMVectorSet(0.0f, 0.0f, 10.0f, 0.0f), XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f));
-	XMMATRIX sProj = XMMatrixOrthographicLH(10.0, 10.0, 0.1, 200.0);
+	//XMMATRIX sProj = XMMatrixPerspectiveFovLH(0.25f * 3.1415926535f, 1.0, 0.1, 50.0);
+	XMMATRIX sProj = XMMatrixOrthographicLH(25.0, 25.0, 0.1, 200.0);
 	XMStoreFloat4x4(&perFrameData.view, XMMatrixTranspose(sView));
 	XMStoreFloat4x4(&perFrameData.projection, XMMatrixTranspose(sProj));
 	XMStoreFloat4x4(&shadowData.sView, XMMatrixTranspose(sView));
@@ -394,10 +422,9 @@ void Simulation::Draw()
 		perObjectData.tileX = obj->GetTextureTileX();
 		perObjectData.tileZ = obj->GetTextureTileZ();
 		devCon->UpdateSubresource(perObjectBuffer, 0, NULL, &perObjectData, 0, 0);
-		devCon->PSSetShader(0, 0, 0);
+		obj->SetShadowPass(true);
 		obj->Draw(devCon);
 	}
-
 	// Reset render target/ view and projection matrices
 	// Set shadowmap to the shader
 	XMStoreFloat4x4(&(perFrameData.view), XMMatrixTranspose(m_Camera.View()));
@@ -416,9 +443,20 @@ void Simulation::Draw()
 		perObjectData.tileX = obj->GetTextureTileX();
 		perObjectData.tileZ = obj->GetTextureTileZ();
 		devCon->UpdateSubresource(perObjectBuffer, 0, NULL, &perObjectData, 0, 0);
-
+		obj->SetShadowPass(false);
 		obj->Draw(devCon);
 	}
+	XMStoreFloat4x4(&(perObjectData.world), XMMatrixTranspose(XMLoadFloat4x4(&(cameraDebugSphere->GetWorldMatrix()))));
+	XMStoreFloat4x4(&(perObjectData.worldInverseTranspose), XMMatrixTranspose(XMMatrixInverse(nullptr, XMMatrixTranspose(XMLoadFloat4x4(&(cameraDebugSphere->GetWorldMatrix()))))));
+	devCon->UpdateSubresource(perObjectBuffer, 0, NULL, &perObjectData, 0, 0);
+	cameraDebugSphere->Draw(devCon);
+
+	XMStoreFloat4x4(&(perObjectData.world), XMMatrixTranspose(XMLoadFloat4x4(&(quarterQuad->GetWorldMatrix()))));
+	XMStoreFloat4x4(&(perObjectData.worldInverseTranspose), XMMatrixTranspose(XMMatrixInverse(nullptr, XMMatrixTranspose(XMLoadFloat4x4(&(quarterQuad->GetWorldMatrix()))))));
+	devCon->UpdateSubresource(perObjectBuffer, 0, NULL, &perObjectData, 0, 0);
+	quarterQuad->Draw(devCon);
+
+	// Swap the buffer pointers!
 	swapChain->Present(0, 0);
 }
 

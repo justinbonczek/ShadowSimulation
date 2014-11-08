@@ -80,14 +80,16 @@ float4 main(VertexToPixel input) : SV_TARGET
 	diffuse += D;
 	spec	+= S;
 
+	input.shadowpos.xyz /= input.shadowpos.w;
+
 	float shadowDepth = _ShadowMap.Sample(_Sampler, input.shadowpos.xy).r;
 	float lightDepth = input.shadowpos.z;
-	
+
 	float4 texColor = _Texture.Sample(_Sampler, float2(input.uv.x * tileX, input.uv.y * tileZ));
 
 	float4 litColor = texColor * (ambient + diffuse) + spec;
 
-	if (lightDepth > shadowDepth)
+	if (lightDepth - 0.0005 > shadowDepth)
 	{
 		litColor = litColor / 2.0;
 	}

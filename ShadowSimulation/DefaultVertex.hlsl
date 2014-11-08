@@ -70,13 +70,14 @@ VertexOutput main(VertexInput input)
 	matrix T = {
 		0.5, 0.0, 0.0, 0.0,
 		0.0, -0.5, 0.0, 0.0,
-		0.0, 0.0, 1.0, 0.0,
+		0.0, 0.0, 0.0, 0.0,
 		0.5, 0.5, 0.0, 1.0
 	};
 
-	matrix shadowTransform = mul(sView, sProj);
+	matrix shadowTransform = mul(mul(world, sView), sProj);
 	o.shadowpos = mul(float4(input.position, 1.0), shadowTransform);
 	o.shadowpos.xy = o.shadowpos.xy * 0.5 + 0.5;
-	o.shadowpos.y = 1.0 - o.shadowpos.y;
+	o.shadowpos.y = o.shadowpos.y * -1;
+	//o.shadowpos = mul(o.shadowpos, T);
 	return o;
 }

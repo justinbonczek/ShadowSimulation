@@ -39,7 +39,7 @@ struct VertexToPixel
 	float2 uv			: TEXCOORD0;
 	float3 normal		: NORMAL;
 	float3 tangent		: TANGENT;
-	float3 shadowpos	: POSITION1;
+	float4 shadowpos	: TEXCOORD1;
 };
 
 Texture2D _Texture : register(t0);
@@ -75,6 +75,8 @@ float4 main(VertexToPixel input) : SV_TARGET
 	diffuse += D;
 	spec += S;
 
+	input.shadowpos.xyz /= input.shadowpos.w;
+
 	float shadowDepth = _ShadowMap.Sample(_Sampler, input.shadowpos.xy).r;
 	float lightDepth = input.shadowpos.z;
 
@@ -82,7 +84,7 @@ float4 main(VertexToPixel input) : SV_TARGET
 
 	float4 litColor = texColor * (ambient + diffuse) + spec;
 
-	if (lightDepth > shadowDepth)
+	if (lightDepth - 0.0005 > shadowDepth)
 	{
 		litColor = litColor / 2.0;
 	}
@@ -94,5 +96,4 @@ float4 main(VertexToPixel input) : SV_TARGET
 	litColor.a = lightMat.diffuse.a;
 
 	return litColor;
-	//return input.color;
 }

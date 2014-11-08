@@ -73,6 +73,8 @@ private:
 	/// <summary>Handles camera motion</summary>
 	void MoveCamera(float dt);
 
+	void MoveLight(float dt);
+
 	Camera m_Camera;
 
 	PerFrameData perFrameData;
@@ -88,7 +90,8 @@ private:
 	PointLight pLight;
 	SpotLight sLight;
 
-	GameObject* fullScreenQuad;
+	GameObject* cameraDebugSphere;
+	GameObject* quarterQuad;
 
 	ID3D11InputLayout* inputLayout;
 	

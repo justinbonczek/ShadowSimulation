@@ -1,3 +1,30 @@
+#include "Lighting.hlsli"
+
+cbuffer perFrame : register(b0)
+{
+	DirectionalLight dLight;
+	PointLight pLight;
+	SpotLight sLight;
+	matrix view;
+	matrix projection;
+	float3 eyePos;
+	float time;
+	float4 fogColor;
+	float fogStart;
+	float fogRange;
+	float pad[2];
+};
+
+cbuffer perObject : register(b1)
+{
+	matrix world;
+	matrix worldInverseTranspose;
+	LightMaterial lightMat;
+	float tileX;
+	float tileZ;
+	float padO[2];
+};
+
 struct VertexInput
 {
 	float3 position : POSITION;
