@@ -33,7 +33,7 @@ public:
 
 	void SetSampler(ID3D11SamplerState* _sampler);
 	void SetSRV(ID3D11ShaderResourceView* srv);
-
+	void SetShadowPass(bool val);
 	
 	float const GetTextureTileX();
 	float const GetTextureTileZ();
@@ -45,6 +45,7 @@ protected:
 	Mesh* mesh;
 	Material* mat;
 
+	bool shadowPass;
 	UINT stride;
 	UINT offset;
 

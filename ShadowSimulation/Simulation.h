@@ -28,8 +28,6 @@ struct PerFrameData
 	float fogStart;
 	float fogRange;
 	float pad[2];
-	XMFLOAT4X4 sView;
-	XMFLOAT4X4 sProj;
 };
 
 struct PerObjectData
@@ -40,6 +38,12 @@ struct PerObjectData
 	float tileX;
 	float tileZ;
 	float pad[2];
+};
+
+struct ShadowData
+{
+	XMFLOAT4X4 sView;
+	XMFLOAT4X4 sProj;
 };
 
 class Simulation : public Game
@@ -73,9 +77,11 @@ private:
 
 	PerFrameData perFrameData;
 	PerObjectData perObjectData;
+	ShadowData shadowData;
 
 	ID3D11Buffer* perFrameBuffer;
 	ID3D11Buffer* perObjectBuffer;
+	ID3D11Buffer* shadowBuffer;
 
 	ShadowMap* shadowMap;
 	DirectionalLight dLight;

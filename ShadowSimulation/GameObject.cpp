@@ -105,12 +105,14 @@ void GameObject::Update(float dt)
 	XMMATRIX translation = XMMatrixTranslationFromVector(XMLoadFloat3(&position));
 	
 	// Transposed because DirectX Math uses a different vector orientation as HLSL
-	XMStoreFloat4x4(&worldMat, XMMatrixTranspose(scaleM * rotationX * rotationY * rotationZ * translation));
+	XMStoreFloat4x4(&worldMat, scaleM * rotationX * rotationY * rotationZ * translation);
 }
 
 void GameObject::Draw(ID3D11DeviceContext* devCon)
 {
 	mat->SetShader(devCon);
+	if (shadowPass)
+		devCon->PSSetShader(0, 0, 0);
 	mat->SetSampler(devCon);
 	mat->SetResources(devCon);
 	if (vBuffer)
@@ -155,6 +157,11 @@ void GameObject::SetSampler(ID3D11SamplerState* _sampler)
 void GameObject::SetSRV(ID3D11ShaderResourceView* _srv)
 {
 	srv = _srv;
+}
+
+void GameObject::SetShadowPass(bool val)
+{
+	shadowPass = val;
 }
 
 float const GameObject::GetTextureTileX(){ if (mat){ return mat->GetTileX(); } }

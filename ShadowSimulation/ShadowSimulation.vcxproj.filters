@@ -14,16 +14,16 @@
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
     <Filter Include="Shaders">
-      <UniqueIdentifier>{eb2bb218-b22f-4598-a004-7d35f1ded463}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Shaders\Include">
-      <UniqueIdentifier>{dfd7d9ee-9e39-40e6-9a62-2d362320e0c7}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Shaders\Vertex">
-      <UniqueIdentifier>{77369057-bb0d-42d7-873a-4985a97b1f1f}</UniqueIdentifier>
+      <UniqueIdentifier>{df996095-b7cb-4345-9ddf-348b778120f5}</UniqueIdentifier>
     </Filter>
     <Filter Include="Shaders\Pixel">
-      <UniqueIdentifier>{46e5bf99-3985-4aaa-8f39-9520193cefe1}</UniqueIdentifier>
+      <UniqueIdentifier>{4e0307b8-2e13-4228-bef4-9744a92fa37f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Shaders\Vertex">
+      <UniqueIdentifier>{009ad6e6-0d78-4729-b967-42c889d8eabc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Shaders\Include">
+      <UniqueIdentifier>{29989db5-6a31-42bd-82d8-8f88f88392c7}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -48,13 +48,13 @@
     <ClCompile Include="Shader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="ShadowMap.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="Simulation.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Timer.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="ShadowMap.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -83,6 +83,9 @@
     <ClInclude Include="Shader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="ShadowMap.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="Simulation.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -92,24 +95,21 @@
     <ClInclude Include="Vertex.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="ShadowMap.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <FxCompile Include="DefaultPixel.hlsl">
-      <Filter>Shaders\Pixel</Filter>
-    </FxCompile>
-    <FxCompile Include="PixelNoNormal.hlsl">
-      <Filter>Shaders\Pixel</Filter>
-    </FxCompile>
     <FxCompile Include="DefaultVertex.hlsl">
       <Filter>Shaders\Vertex</Filter>
     </FxCompile>
     <FxCompile Include="FullScreenQuadVert.hlsl">
       <Filter>Shaders\Vertex</Filter>
     </FxCompile>
+    <FxCompile Include="DefaultPixel.hlsl">
+      <Filter>Shaders\Pixel</Filter>
+    </FxCompile>
     <FxCompile Include="FullScreenQuadPixel.hlsl">
+      <Filter>Shaders\Pixel</Filter>
+    </FxCompile>
+    <FxCompile Include="PixelNoNormal.hlsl">
       <Filter>Shaders\Pixel</Filter>
     </FxCompile>
   </ItemGroup>

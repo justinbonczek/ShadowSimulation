@@ -177,8 +177,6 @@ void Simulation::LoadAssets()
 		chair->SetRotation(XMFLOAT3(0.0, -PI/ 2.0f, 0.0f));
 		objects.push_back(chair);
 	}
-
-	objects.push_back(fullScreenQuad);
 }	
 
 void Simulation::InitializePipeline()
@@ -218,6 +216,9 @@ void Simulation::InitializePipeline()
 
 	cd.ByteWidth = sizeof(perObjectData);
 	dev->CreateBuffer(&cd, NULL, &perObjectBuffer);
+
+	cd.ByteWidth = sizeof(shadowData);
+	dev->CreateBuffer(&cd, NULL, &shadowBuffer);
 
 	D3D11_BLEND_DESC bd;
 	ZeroMemory(&bd, sizeof(D3D11_BLEND_DESC));
@@ -302,6 +303,8 @@ void Simulation::InitializePipeline()
 	devCon->VSSetConstantBuffers(1, 1, &perObjectBuffer);
 	devCon->PSSetConstantBuffers(0, 1, &perFrameBuffer);
 	devCon->PSSetConstantBuffers(1, 1, &perObjectBuffer);
+	devCon->VSSetConstantBuffers(2, 1, &shadowBuffer);
+	devCon->PSSetConstantBuffers(2, 1, &shadowBuffer);
 
 	shadowMap = new ShadowMap(dev, 1024, 1024);
 }
@@ -344,7 +347,7 @@ void Simulation::Update(float dt)
 	///
 	// Spotlight animation
 	///
-	sLight.position = XMFLOAT3(40.0f * cos(totalTime * 1.0), sLight.position.y, 40.0f * sin(totalTime * 1.0) + 10.0f);
+	sLight.position = XMFLOAT3(30.0f * cos(totalTime * 1.0), sLight.position.y, 30.0f * sin(totalTime * 1.0) + 10.0f);
 	XMFLOAT3 direction(-(sLight.position.x), -sLight.position.y, 10 - (sLight.position.z));
 	XMStoreFloat3(&sLight.direction, XMVector3Normalize(XMLoadFloat3(&direction)));
 
@@ -358,9 +361,8 @@ void Simulation::Update(float dt)
 
 void Simulation::Draw()
 {
-	// Update camera/ send view matrix to pipeline
+	// Update camera
 	m_Camera.UpdateViewMatrix();
-	XMStoreFloat4x4(&(perFrameData.view), XMMatrixTranspose(m_Camera.View()));
 
 	// Set up the render target (back buffer) and clear it
 	const float clearColor[4] = { 0.0f, 0.0, 0.0f, 1.0f };
@@ -380,13 +382,14 @@ void Simulation::Draw()
 	XMMATRIX sProj = XMMatrixOrthographicLH(10.0, 10.0, 0.1, 200.0);
 	XMStoreFloat4x4(&perFrameData.view, XMMatrixTranspose(sView));
 	XMStoreFloat4x4(&perFrameData.projection, XMMatrixTranspose(sProj));
-	XMStoreFloat4x4(&perFrameData.sView, XMMatrixTranspose(sView));
-	XMStoreFloat4x4(&perFrameData.sProj, XMMatrixTranspose(sProj));
+	XMStoreFloat4x4(&shadowData.sView, XMMatrixTranspose(sView));
+	XMStoreFloat4x4(&shadowData.sProj, XMMatrixTranspose(sProj));
 	devCon->UpdateSubresource(perFrameBuffer, 0, NULL, &perFrameData, 0, 0);
+	devCon->UpdateSubresource(shadowBuffer, 0, NULL, &shadowData, 0, 0);
 	for (GameObject* obj : objects)
 	{
-		XMStoreFloat4x4(&(perObjectData.world), XMLoadFloat4x4(&(obj->GetWorldMatrix())));
-		XMStoreFloat4x4(&(perObjectData.worldInverseTranspose), XMMatrixInverse(nullptr, XMMatrixTranspose(XMLoadFloat4x4(&(obj->GetWorldMatrix())))));
+		XMStoreFloat4x4(&(perObjectData.world), XMMatrixTranspose(XMLoadFloat4x4(&(obj->GetWorldMatrix()))));
+		XMStoreFloat4x4(&(perObjectData.worldInverseTranspose), XMMatrixTranspose(XMMatrixInverse(nullptr, XMMatrixTranspose(XMLoadFloat4x4(&(obj->GetWorldMatrix()))))));
 		perObjectData.lightMat = obj->GetLightMaterial();
 		perObjectData.tileX = obj->GetTextureTileX();
 		perObjectData.tileZ = obj->GetTextureTileZ();
@@ -395,16 +398,20 @@ void Simulation::Draw()
 		obj->Draw(devCon);
 	}
 
+	// Reset render target/ view and projection matrices
+	// Set shadowmap to the shader
 	XMStoreFloat4x4(&(perFrameData.view), XMMatrixTranspose(m_Camera.View()));
-	OnResize();
+	XMStoreFloat4x4(&(perFrameData.projection), XMMatrixTranspose(m_Camera.Proj()));
+	devCon->OMSetRenderTargets(1, &renderTargetView, depthStencilView);
+	devCon->RSSetViewports(1, &viewport);
 	shadowMap->SetSRVToShaders(devCon);
 
 	devCon->UpdateSubresource(perFrameBuffer, 0, NULL, &perFrameData, 0, 0);
 	// Render the geometry from the camera to the back buffer
 	for (GameObject* obj : objects)
 	{		
-		XMStoreFloat4x4(&(perObjectData.world), XMLoadFloat4x4(&(obj->GetWorldMatrix())));
-		XMStoreFloat4x4(&(perObjectData.worldInverseTranspose), XMMatrixInverse(nullptr, XMMatrixTranspose(XMLoadFloat4x4(&(obj->GetWorldMatrix())))));
+		XMStoreFloat4x4(&(perObjectData.world), XMMatrixTranspose(XMLoadFloat4x4(&(obj->GetWorldMatrix()))));
+		XMStoreFloat4x4(&(perObjectData.worldInverseTranspose), XMMatrixTranspose(XMMatrixInverse(nullptr, XMMatrixTranspose(XMLoadFloat4x4(&(obj->GetWorldMatrix()))))));
 		perObjectData.lightMat = obj->GetLightMaterial();
 		perObjectData.tileX = obj->GetTextureTileX();
 		perObjectData.tileZ = obj->GetTextureTileZ();

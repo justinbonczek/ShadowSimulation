@@ -13,8 +13,6 @@ cbuffer perFrame : register(b0)
 	float fogStart;
 	float fogRange;
 	float pad[2];
-	matrix sView;
-	matrix sProj;
 };
 
 cbuffer perObject : register(b1)
@@ -25,6 +23,12 @@ cbuffer perObject : register(b1)
 	float tileX;
 	float tileZ;
 	float padO[2];
+};
+
+cbuffer shadow : register(b2)
+{
+	matrix sView;
+	matrix sProj;
 };
 
 struct VertexToPixel
@@ -71,9 +75,17 @@ float4 main(VertexToPixel input) : SV_TARGET
 	diffuse += D;
 	spec += S;
 
+	float shadowDepth = _ShadowMap.Sample(_Sampler, input.shadowpos.xy).r;
+	float lightDepth = input.shadowpos.z;
+
 	float4 texColor = _Texture.Sample(_Sampler, float2(input.uv.x * tileX, input.uv.y * tileZ));
 
 	float4 litColor = texColor * (ambient + diffuse) + spec;
+
+	if (lightDepth > shadowDepth)
+	{
+		litColor = litColor / 2.0;
+	}
 
 	float fogLerp = saturate((distToEye - fogStart) / fogRange);
 
