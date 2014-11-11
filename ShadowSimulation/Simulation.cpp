@@ -88,9 +88,9 @@ void Simulation::LoadAssets()
 	ID3D11SamplerState* pcfSampler;
 	wsd.Filter = D3D11_FILTER_COMPARISON_MIN_MAG_LINEAR_MIP_POINT;
 	wsd.ComparisonFunc = D3D11_COMPARISON_LESS_EQUAL;
-	wsd.AddressU = D3D11_TEXTURE_ADDRESS_BORDER;
-	wsd.AddressV = D3D11_TEXTURE_ADDRESS_BORDER;
-	wsd.AddressW = D3D11_TEXTURE_ADDRESS_BORDER;
+	wsd.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
+	wsd.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
+	wsd.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
 	dev->CreateSamplerState(&wsd, &pcfSampler);
 	devCon->PSSetSamplers(1, 1, &pcfSampler);
 	
@@ -347,7 +347,8 @@ void Simulation::InitializePipeline()
 	devCon->VSSetConstantBuffers(2, 1, &shadowBuffer);
 	devCon->PSSetConstantBuffers(2, 1, &shadowBuffer);
 
-	shadowMap = new ShadowMap(dev, 1024, 1024);
+	shadowData.resolution = 2048.0;
+	shadowMap = new ShadowMap(dev, (UINT)shadowData.resolution, (UINT)shadowData.resolution);
 }
 
 void Simulation::OnResize()

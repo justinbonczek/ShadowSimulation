@@ -44,6 +44,8 @@ struct ShadowData
 {
 	XMFLOAT4X4 sView;
 	XMFLOAT4X4 sProj;
+	float resolution;
+	float pad[3];
 };
 
 class Simulation : public Game

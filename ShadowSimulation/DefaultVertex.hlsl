@@ -29,6 +29,8 @@ cbuffer shadow : register(b2)
 {
 	matrix sView;
 	matrix sProj;
+	float resolution;
+	float padS[3];
 };
 
 struct VertexInput
@@ -55,29 +57,28 @@ VertexOutput main(VertexInput input)
 {
 	VertexOutput o;
 
+	// Calculate wvp matrix
 	matrix worldViewProj = mul(mul(world, view), projection);
 
+	// Apply wvp matrix to input coordinates to get screen coordinates
 	o.position = mul(float4(input.position, 1.0), worldViewProj);
 
+	// Apply world matrix to input coordinates to get world coordinates
 	o.worldpos = mul(float4(input.position, 1.0), world).xyz;
 
+	// Normal/ Tangent calculation
 	o.normal = mul(input.normal, (float3x3)worldInverseTranspose);
 	o.tangent = mul(input.tangent, (float3x3)world);
 
+	// Pass through values
 	o.color = input.color;
 	o.uv = input.uv;
 
-	matrix T = {
-		0.5, 0.0, 0.0, 0.0,
-		0.0, -0.5, 0.0, 0.0,
-		0.0, 0.0, 0.0, 0.0,
-		0.5, 0.5, 0.0, 1.0
-	};
-
+	// Calculate projected texture coordinates for shadowmap
 	matrix shadowTransform = mul(mul(world, sView), sProj);
 	o.shadowpos = mul(float4(input.position, 1.0), shadowTransform);
 	o.shadowpos.xy = o.shadowpos.xy * 0.5 + 0.5;
 	o.shadowpos.y = o.shadowpos.y * -1;
-	//o.shadowpos = mul(o.shadowpos, T);
+
 	return o;
 }

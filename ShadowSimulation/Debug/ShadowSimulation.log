@@ -1,29 +1,8 @@
-﻿Build started 11/11/2014 6:37:34 AM.
+﻿Build started 11/11/2014 10:37:24 AM.
      1>Project "C:\Dev\Projects\ShadowSimulation\ShadowSimulation\ShadowSimulation.vcxproj" on node 2 (Build target(s)).
      1>ClCompile:
-         C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\CL.exe /c /ZI /nologo /W3 /WX- /sdl /Od /Oy- /D _UNICODE /D UNICODE /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Fo"Debug\\" /Fd"Debug\vc120.pdb" /Gd /TP /analyze- /errorReport:prompt Camera.cpp GameObject.cpp Mesh.cpp MeshGenerator.cpp Simulation.cpp
-         Camera.cpp
-         Generating Code...
-         Compiling...
+         C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\CL.exe /c /ZI /nologo /W3 /WX- /sdl /Od /Oy- /D _UNICODE /D UNICODE /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Fo"Debug\\" /Fd"Debug\vc120.pdb" /Gd /TP /analyze- /errorReport:prompt Simulation.cpp
          Simulation.cpp
-         MeshGenerator.cpp
-     1>c:\dev\projects\shadowsimulation\shadowsimulation\meshgenerator.cpp(47): warning C4018: '<' : signed/unsigned mismatch
-     1>c:\dev\projects\shadowsimulation\shadowsimulation\meshgenerator.cpp(146): warning C4018: '<' : signed/unsigned mismatch
-     1>c:\dev\projects\shadowsimulation\shadowsimulation\meshgenerator.cpp(149): warning C4018: '<' : signed/unsigned mismatch
-     1>c:\dev\projects\shadowsimulation\shadowsimulation\meshgenerator.cpp(158): warning C4305: 'argument' : truncation from 'double' to 'float'
-     1>c:\dev\projects\shadowsimulation\shadowsimulation\meshgenerator.cpp(164): warning C4018: '<' : signed/unsigned mismatch
-     1>c:\dev\projects\shadowsimulation\shadowsimulation\meshgenerator.cpp(166): warning C4018: '<' : signed/unsigned mismatch
-         Mesh.cpp
-     1>c:\dev\projects\shadowsimulation\shadowsimulation\mesh.cpp(137): warning C4018: '<' : signed/unsigned mismatch
-     1>c:\dev\projects\shadowsimulation\shadowsimulation\mesh.cpp(143): warning C4018: '<' : signed/unsigned mismatch
-     1>c:\dev\projects\shadowsimulation\shadowsimulation\mesh.cpp(151): warning C4018: '<' : signed/unsigned mismatch
-     1>c:\dev\projects\shadowsimulation\shadowsimulation\mesh.cpp(191): warning C4305: '=' : truncation from 'double' to 'float'
-     1>c:\dev\projects\shadowsimulation\shadowsimulation\mesh.cpp(210): warning C4018: '<' : signed/unsigned mismatch
-     1>c:\dev\projects\shadowsimulation\shadowsimulation\mesh.cpp(213): warning C4018: '<' : signed/unsigned mismatch
-         GameObject.cpp
-         Generating Code...
-     1>c:\dev\projects\shadowsimulation\shadowsimulation\gameobject.cpp(162): warning C4715: 'GameObject::GetTextureTileX' : not all control paths return a value
-     1>c:\dev\projects\shadowsimulation\shadowsimulation\gameobject.cpp(163): warning C4715: 'GameObject::GetTextureTileZ' : not all control paths return a value
        Link:
          C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"C:\Dev\Projects\ShadowSimulation\Debug\ShadowSimulation.exe" /INCREMENTAL /NOLOGO d3dcompiler.lib d3d11.lib assimpd.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"C:\Dev\Projects\ShadowSimulation\Debug\ShadowSimulation.pdb" /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"C:\Dev\Projects\ShadowSimulation\Debug\ShadowSimulation.lib" /MACHINE:X86 Debug\Camera.obj
          Debug\Game.obj
@@ -41,4 +20,4 @@
 
 Build succeeded.
 
-Time Elapsed 00:00:06.24
+Time Elapsed 00:00:01.68
