@@ -26,7 +26,6 @@ public:
 	
 	bool LoadShader(wchar_t* filepath, ShaderType type, ID3D11Device* dev);
 	void SetShader(ShaderType type, ID3D11DeviceContext* devCon);
-
 private:
 	bool CheckLoaded(ShaderType type);
 

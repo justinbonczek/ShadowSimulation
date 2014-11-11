@@ -9,7 +9,7 @@
 #include <DirectXMath.h>
 using namespace DirectX;
 
-#define PI 3.14159265359
+#define PI 3.14159265359f
 
 struct Vertex
 {

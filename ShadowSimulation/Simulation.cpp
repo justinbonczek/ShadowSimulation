@@ -65,7 +65,7 @@ bool Simulation::Initialize()
 	LoadAssets();
 	InitializePipeline();
 
-	m_Camera.SetPosition(0.0, 5.0, -10.0);
+	m_Camera.SetPosition(0.0f, 5.0f, -10.0f);
 	return true;
 }
 
@@ -85,6 +85,15 @@ void Simulation::LoadAssets()
 	wsd.MipLODBias = 0;
 	dev->CreateSamplerState(&wsd, &wrapSampler);
 
+	ID3D11SamplerState* pcfSampler;
+	wsd.Filter = D3D11_FILTER_COMPARISON_MIN_MAG_LINEAR_MIP_POINT;
+	wsd.ComparisonFunc = D3D11_COMPARISON_LESS_EQUAL;
+	wsd.AddressU = D3D11_TEXTURE_ADDRESS_BORDER;
+	wsd.AddressV = D3D11_TEXTURE_ADDRESS_BORDER;
+	wsd.AddressW = D3D11_TEXTURE_ADDRESS_BORDER;
+	dev->CreateSamplerState(&wsd, &pcfSampler);
+	devCon->PSSetSamplers(1, 1, &pcfSampler);
+	
 	///
 	// Lights
 	///
@@ -126,18 +135,18 @@ void Simulation::LoadAssets()
 	// Sets up meshes, materials, light materials, shaders and handles position/rotation/scaling
 	///
 	MeshData plane;
-	MeshGenerator::CreatePlane(25.0, 25.0, 2, 2, plane);
+	MeshGenerator::CreatePlane(25.0f, 25.0f, 2, 2, plane);
 	Mesh* planeMesh = new Mesh(plane, dev);
 
 	MeshData sphere;
-	MeshGenerator::CreateSphere(1.0, 2, sphere);
+	MeshGenerator::CreateSphere(1.0f, 2, sphere);
 	Mesh* sphereMesh = new Mesh(sphere, dev);
 
 	MeshData screenQuad;
-	screenQuad.vertices.push_back(Vertex(XMFLOAT3(0.5, -0.5, 0.1), XMFLOAT2(0.0, 0.0)));
-	screenQuad.vertices.push_back(Vertex(XMFLOAT3(1.0, -0.5, 0.1), XMFLOAT2(1.0, 0.0)));
-	screenQuad.vertices.push_back(Vertex(XMFLOAT3(0.5, -1.0, 0.1), XMFLOAT2(0.0, 1.0)));
-	screenQuad.vertices.push_back(Vertex(XMFLOAT3(1.0, -1.0, 0.1), XMFLOAT2(1.0, 1.0)));
+	screenQuad.vertices.push_back(Vertex(XMFLOAT3(0.5f, -0.5f, 0.1f), XMFLOAT2(0.0f, 0.0f)));
+	screenQuad.vertices.push_back(Vertex(XMFLOAT3(1.0f, -0.5f, 0.1f), XMFLOAT2(1.0f, 0.0f)));
+	screenQuad.vertices.push_back(Vertex(XMFLOAT3(0.5f, -1.0f, 0.1f), XMFLOAT2(0.0f, 1.0f)));
+	screenQuad.vertices.push_back(Vertex(XMFLOAT3(1.0f, -1.0f, 0.1f), XMFLOAT2(1.0f, 1.0f)));
 	screenQuad.indices.push_back(0);
 	screenQuad.indices.push_back(1);
 	screenQuad.indices.push_back(2);
@@ -194,7 +203,7 @@ void Simulation::LoadAssets()
 		GameObject* chair = new GameObject(new Mesh("Models/chair.fbx", dev), defaultMat);
 		chair->SetPosition(XMFLOAT3(5.0f, 2.0f, (float)i * 5.0f));
 		chair->SetScale(XMFLOAT3(1.0f, 0.25f, 1.0f));
-		chair->SetRotation(XMFLOAT3(0.0, -PI/ 2.0f, 0.0f));
+		chair->SetRotation(XMFLOAT3(0.0f, -PI/ 2.0f, 0.0f));
 		objects.push_back(chair);
 	}
 
@@ -243,6 +252,9 @@ void Simulation::InitializePipeline()
 	cd.ByteWidth = sizeof(shadowData);
 	dev->CreateBuffer(&cd, NULL, &shadowBuffer);
 
+	//
+	// Blend State
+	//
 	D3D11_BLEND_DESC bd;
 	ZeroMemory(&bd, sizeof(D3D11_BLEND_DESC));
 	bd.AlphaToCoverageEnable = false;
@@ -258,6 +270,9 @@ void Simulation::InitializePipeline()
 	bd.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
 	dev->CreateBlendState(&bd, &blendState);
 
+	//
+	// Rasterizer States
+	//
 	D3D11_RASTERIZER_DESC rd;
 	ZeroMemory(&rd, sizeof(D3D11_RASTERIZER_DESC));
 	rd.FillMode = D3D11_FILL_WIREFRAME;
@@ -277,6 +292,9 @@ void Simulation::InitializePipeline()
 
 	current = solid;
 
+	//
+	// Depth Stencil States
+	//
 	D3D11_DEPTH_STENCIL_DESC dsd;
 	ZeroMemory(&dsd, sizeof(D3D11_DEPTH_STENCIL_DESC));
 	dsd.DepthEnable = true;
@@ -349,20 +367,20 @@ void Simulation::Update(float dt)
 	totalTime += dt;
 
 	perFrameData.time = totalTime;
-	if (GetAsyncKeyState(VK_SPACE) && 0x8000 && time > 0.25)
+	if (GetAsyncKeyState(VK_SPACE) && 0x8000 && time > 0.25f)
 	{
 		if (current == solid)
 		{
 			current = wireframe;
-			time = 0;
+			time = 0.0f;
 		}
 		else
 		{
 			current = solid;
-			time = 0;
+			time = 0.0f;
 		}
-		if (time > 100)
-			time -= 100;
+		if (time > 100.0f)
+			time -= 100.0f;
 	}
 	MoveCamera(dt);
 	perFrameData.eyePos = m_Camera.GetPosition();
@@ -372,8 +390,8 @@ void Simulation::Update(float dt)
 	///
 	// Spotlight animation
 	///
-	sLight.position = XMFLOAT3(30.0f * cos(totalTime * 1.0), sLight.position.y, 30.0f * sin(totalTime * 1.0) + 10.0f);
-	XMFLOAT3 direction(-(sLight.position.x), -sLight.position.y, 10 - (sLight.position.z));
+	sLight.position = XMFLOAT3(30.0f * cos(totalTime * 1.0f), sLight.position.y, 30.0f * sin(totalTime * 1.0f) + 10.0f);
+	XMFLOAT3 direction(-(sLight.position.x), -sLight.position.y, 10.0f - (sLight.position.z));
 	XMStoreFloat3(&sLight.direction, XMVector3Normalize(XMLoadFloat3(&direction)));
 
 	perFrameData.sLight = sLight;
@@ -392,7 +410,7 @@ void Simulation::Draw()
 	m_Camera.UpdateViewMatrix();
 
 	// Set up the render target (back buffer) and clear it
-	const float clearColor[4] = { 0.0f, 0.0, 0.0f, 1.0f };
+	const float clearColor[4] = { 0.0f, 0.0f, 0.0f, 1.0f };
 
 	devCon->ClearRenderTargetView(renderTargetView, clearColor);
 	devCon->ClearDepthStencilView(depthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
@@ -407,7 +425,7 @@ void Simulation::Draw()
 	shadowMap->BindDSVAndSetNullRenderTarget(devCon);
 	XMMATRIX sView = XMMatrixLookAtLH(XMLoadFloat3(&sLight.position), XMVectorSet(0.0f, 0.0f, 10.0f, 0.0f), XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f));
 	//XMMATRIX sProj = XMMatrixPerspectiveFovLH(0.25f * 3.1415926535f, 1.0, 0.1, 50.0);
-	XMMATRIX sProj = XMMatrixOrthographicLH(25.0, 25.0, 0.1, 200.0);
+	XMMATRIX sProj = XMMatrixOrthographicLH(30.0f, 30.0f, 0.1f, 200.0f);
 	XMStoreFloat4x4(&perFrameData.view, XMMatrixTranspose(sView));
 	XMStoreFloat4x4(&perFrameData.projection, XMMatrixTranspose(sProj));
 	XMStoreFloat4x4(&shadowData.sView, XMMatrixTranspose(sView));
@@ -446,6 +464,8 @@ void Simulation::Draw()
 		obj->SetShadowPass(false);
 		obj->Draw(devCon);
 	}
+
+	// Debug drawing
 	XMStoreFloat4x4(&(perObjectData.world), XMMatrixTranspose(XMLoadFloat4x4(&(cameraDebugSphere->GetWorldMatrix()))));
 	XMStoreFloat4x4(&(perObjectData.worldInverseTranspose), XMMatrixTranspose(XMMatrixInverse(nullptr, XMMatrixTranspose(XMLoadFloat4x4(&(cameraDebugSphere->GetWorldMatrix()))))));
 	devCon->UpdateSubresource(perObjectBuffer, 0, NULL, &perObjectData, 0, 0);

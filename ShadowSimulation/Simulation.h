@@ -52,27 +52,36 @@ public:
 	Simulation(HINSTANCE hInstance);
 	virtual ~Simulation();
 
-	/// <summary>Sets up the game</summary>
+	/// <summary>Sets up the game
+	/// </summary>
 	bool Initialize();
 
-	/// <summary>Called every time the window is resized</summary>
+	/// <summary>Called every time the window is resized
+	/// </summary>
 	void OnResize();
 
-	/// <summary>Called many times per second to update simulation logic</summary>
+	/// <summary>Called many times per second to update simulation logic
+	/// </summary>
 	void Update(float dt);
 
-	/// <summary>Called many times per second to draw the simulation</summary>
+	/// <summary>Called many times per second to draw the simulation
+	/// </summary>
 	void Draw();
 private:
-	/// <summary>Functions called during initialization</summary>
+	/// <summary>Functions called during initialization
+	/// </summary>
 	void LoadAssets();
 
-	/// <summary>Sets up the input layouts and other DirectX 11 states</summary>
+	/// <summary>Sets up the input layouts and other DirectX 11 states
+	/// </summary>
 	void InitializePipeline();
 
-	/// <summary>Handles camera motion</summary>
+	/// <summary>Handles camera motion
+	/// </summary>
 	void MoveCamera(float dt);
 
+	/// <summary>Handles light motion
+	/// </summary>
 	void MoveLight(float dt);
 
 	Camera m_Camera;

@@ -123,11 +123,6 @@ void GameObject::Draw(ID3D11DeviceContext* devCon)
 	devCon->DrawIndexed(mesh->numIndices, 0, 0);
 }
 
-void GameObject::DrawShadows(ID3D11DeviceContext* devCon)
-{
-	devCon->DrawIndexed(mesh->numIndices, 0, 0);
-}
-
 void GameObject::SetPosition(XMFLOAT3 newPosition)
 {
 	position.x = newPosition.x;

@@ -19,31 +19,40 @@ public:
 	Game(HINSTANCE hInstance);
 	virtual ~Game(void);
 
-	/// <summary>Handles Windows messages</summary>
+	/// <summary>Handles Windows messages
+	/// </summary>
 	LRESULT MsgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
-	/// <summary>Game Loop</summary>
+	/// <summary>Game Loop
+	/// </summary>
 	int Run();
 
-	/// <summary>Sets up the window and DirectX 11</summary>
+	/// <summary>Sets up the window and DirectX 11
+	/// </summary>
 	virtual bool Initialize();
 
-	/// <summary>When the window is resized, fixes the back buffer, viewport, render target view, etc.</summary>
+	/// <summary>When the window is resized, fixes the back buffer, viewport, render target view, etc.
+	/// </summary>
 	virtual void OnResize();
 
-	/// <summary>Pure virtual function to update game logic</summary>
+	/// <summary>Pure virtual function to update game logic
+	/// </summary>
 	virtual void Update(float dt) = 0;
 
-	/// <summary>Pure virtual function to render game objects</summary>
+	/// <summary>Pure virtual function to render game objects
+	/// </summary>
 	virtual void Draw() = 0;
 
-	/// <summary>Calculates the aspect ratio of the window</summary>
+	/// <summary>Calculates the aspect ratio of the window
+	/// </summary>
 	float AspectRatio()const;
 protected:
-	/// <summary>Sets up the window</summary>
+	/// <summary>Sets up the window
+	/// </summary>
 	bool InitializeWindow();
 
-	/// <summary>Sets up DirectX 11</summary>
+	/// <summary>Sets up DirectX 11
+	/// </summary>
 	bool InitializeDirect3D();
 
 	float deltaTime;

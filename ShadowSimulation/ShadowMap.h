@@ -11,7 +11,12 @@ public:
 
 	ID3D11ShaderResourceView* GetDepthMapSrv();
 
+	/// <summary>Set the shadowmap to the pixel shader for shadow calculations
+	/// </summary>
 	void SetSRVToShaders(ID3D11DeviceContext* devCon);
+
+	/// <summary>Sets up the render target for shadowmap rendering
+	/// </summary>
 	void BindDSVAndSetNullRenderTarget(ID3D11DeviceContext* devCon);
 private:
 	UINT width;

@@ -19,8 +19,16 @@ public:
 	Material(wchar_t* filepath, ID3D11SamplerState* sampler, ID3D11Device* dev);
 	virtual ~Material();
 
+	/// <summary>Sets the material's shader to the parameter
+	/// </summary>
 	void LoadShader(Shader* shader);
+
+	/// <summary>Loads a shader from a file
+	/// </summary>
 	void LoadShader(wchar_t* filepath, ShaderType type, ID3D11Device* dev);
+
+	/// <summary>Loads a normal map SRV
+	/// </summary>
 	void LoadNormal(wchar_t* filepath, ID3D11Device* dev);
 	void LoadBump(wchar_t* filepath, ID3D11Device* dev);
 

@@ -42,6 +42,7 @@ Texture2D _Texture : register(t0);
 Texture2D _Normal  : register(t1);
 Texture2D _ShadowMap : register(t3);
 SamplerState _Sampler : register(s0);
+SamplerComparisonState _CmpSampler : register(s1);
 
 float4 main(VertexToPixel input) : SV_TARGET
 {
@@ -82,17 +83,17 @@ float4 main(VertexToPixel input) : SV_TARGET
 
 	input.shadowpos.xyz /= input.shadowpos.w;
 
-	float shadowDepth = _ShadowMap.Sample(_Sampler, input.shadowpos.xy).r;
+	float shadowDepth = _ShadowMap.Sample(_Sampler, input.shadowpos.xy);
 	float lightDepth = input.shadowpos.z;
+	//float shadowDepth = _ShadowMap.SampleCmpLevelZero(_CmpSampler, input.shadowpos.xy, lightDepth).r;
 
 	float4 texColor = _Texture.Sample(_Sampler, float2(input.uv.x * tileX, input.uv.y * tileZ));
 
 	float4 litColor = texColor * (ambient + diffuse) + spec;
 
 	if (lightDepth - 0.0005 > shadowDepth)
-	{
-		litColor = litColor / 2.0;
-	}
+		litColor /= 2.0;
+	//litColor *= shadowDepth;
 
 	float fogLerp = saturate((distToEye - fogStart) / fogRange);
 

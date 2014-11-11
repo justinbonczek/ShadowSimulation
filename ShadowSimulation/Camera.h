@@ -46,13 +46,16 @@ public:
 	float GetFarWindowWidth() const;
 	float GetFarWindowHeight() const;
 
-	/// <summary>Sets up the view frustum</summary>
+	/// <summary>Sets up the view frustum
+	/// </summary>
 	void SetLens(float fovY, float aspect, float zn, float zf);
 
-	/// <summary>Adjusts the view matrix to look at a specific point</summary>
+	/// <summary>Adjusts the view matrix to look at a specific point
+	/// </summary>
 	void LookAt(FXMVECTOR pos, FXMVECTOR target, FXMVECTOR worldUp);
 
-	/// <summary>Adjusts the view matrix to look at a specific point</summary>
+	/// <summary>Adjusts the view matrix to look at a specific point
+	/// </summary>
 	void LookAt(const XMFLOAT3& pos, const XMFLOAT3& target, const XMFLOAT3& up);
 
 	XMMATRIX View() const;
@@ -65,6 +68,8 @@ public:
 	void Pitch(float angle);
 	void RotateY(float angle);
 
+	/// <summary>Updates the view matrix (no way, really?)
+	/// </summary>
 	void UpdateViewMatrix();
 private:
 	XMFLOAT3 m_Position;
